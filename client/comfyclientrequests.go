@@ -223,6 +223,32 @@ func (c *ComfyClient) GetImage(image_data DataOutput) (*[]byte, error) {
 	return &body, nil
 }
 
+// GetVideo
+func (c *ComfyClient) GetVideo(video_data DataOutput) (*[]byte, error) {
+	params := url.Values{}
+	params.Add("filename", video_data.Filename)
+	params.Add("subfolder", video_data.Subfolder)
+	params.Add("type", video_data.Type)
+	// params.Add("format", "video/h264-mp4")
+	// params.Add("frame_rate", "16")
+
+	req, err := c.createRequest("GET",
+		fmt.Sprintf("%s://%s/viewvideo?%s", c.httpProtocol, c.serverBaseAddress, params.Encode()),
+		nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpclient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	return &body, nil
+}
+
 // GetEmbeddings retrieves the list of Embeddings models installed on the ComfyUI server.
 func (c *ComfyClient) GetEmbeddings() ([]string, error) {
 	req, err := c.createRequest("GET",
